@@ -4,9 +4,7 @@ author: "Coursera Student"
 date: "21 August 2014"
 output: html_document
 ---
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache=TRUE)
-```
+
 ```{r reading data, echo = FALSE}
 load("training.RData")
 load("test.RData")
