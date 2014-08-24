@@ -1,0 +1,361 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Pml-assn by sm30</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Pml-assn</h1>
+        <p>Practical Machine Learning assn WriteUp</p>
+
+        <p class="view"><a href="https://github.com/sm30/PML-Assn">View the Project on GitHub <small>sm30/PML-Assn</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/sm30/PML-Assn/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/sm30/PML-Assn/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/sm30/PML-Assn">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <hr><p>title: "Practical Machine Learning-Data Science Specialization"
+author: "Coursera Student"
+date: "21 August 2014"</p>
+
+<h2>
+<a name="output-html_document" class="anchor" href="#output-html_document"><span class="octicon octicon-link"></span></a>output: html_document</h2>
+
+<div class="highlight highlight-r"><pre>knitr<span class="o">::</span>opts_chunk<span class="o">$</span>set<span class="p">(</span>cache<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</pre></div>
+
+<div class="highlight highlight-r"><pre><span class="kp">load</span><span class="p">(</span><span class="s">"training.RData"</span><span class="p">)</span>
+<span class="kp">load</span><span class="p">(</span><span class="s">"test.RData"</span><span class="p">)</span>
+</pre></div>
+
+<h1>
+<a name="preprocessing-data" class="anchor" href="#preprocessing-data"><span class="octicon octicon-link"></span></a>PREPROCESSING DATA</h1>
+
+<div class="highlight highlight-r"><pre><span class="kp">dim</span><span class="p">(</span>training<span class="p">)</span>
+<span class="kp">dim</span><span class="p">(</span>test<span class="p">)</span>
+</pre></div>
+
+<h4>
+<a name="are-variable-names-unique" class="anchor" href="#are-variable-names-unique"><span class="octicon octicon-link"></span></a>Are variable names unique?</h4>
+
+<div class="highlight highlight-r"><pre><span class="kp">sum</span><span class="p">(</span><span class="kp">table</span><span class="p">(</span><span class="kp">names</span><span class="p">(</span>training<span class="p">)))</span>
+<span class="kp">sum</span><span class="p">(</span><span class="kp">table</span><span class="p">(</span><span class="kp">unique</span><span class="p">(</span><span class="kp">names</span><span class="p">(</span>training<span class="p">))))</span>
+<span class="kp">sum</span><span class="p">(</span><span class="kp">table</span><span class="p">(</span><span class="kp">names</span><span class="p">(</span>test<span class="p">)))</span>
+<span class="kp">sum</span><span class="p">(</span><span class="kp">table</span><span class="p">(</span><span class="kp">unique</span><span class="p">(</span><span class="kp">names</span><span class="p">(</span>test<span class="p">))))</span>
+</pre></div>
+
+<h4>
+<a name="do-training-and-test-variable-names-match" class="anchor" href="#do-training-and-test-variable-names-match"><span class="octicon octicon-link"></span></a>Do training and test variable names match?</h4>
+
+<div class="highlight highlight-r"><pre><span class="kp">table</span><span class="p">(</span><span class="kp">names</span><span class="p">(</span>training<span class="p">)</span><span class="o">==</span><span class="kp">names</span><span class="p">(</span>test<span class="p">))</span>
+<span class="kp">names</span><span class="p">(</span>training<span class="p">)[</span><span class="kp">names</span><span class="p">(</span>training<span class="p">)</span><span class="o">!=</span><span class="kp">names</span><span class="p">(</span>test<span class="p">)]</span>
+<span class="kp">names</span><span class="p">(</span>test<span class="p">)[</span><span class="kp">names</span><span class="p">(</span>test<span class="p">)</span><span class="o">!=</span><span class="kp">names</span><span class="p">(</span>training<span class="p">)]</span>
+</pre></div>
+
+<h4>
+<a name="are-there-missing-values" class="anchor" href="#are-there-missing-values"><span class="octicon octicon-link"></span></a>Are there missing values?</h4>
+
+<div class="highlight highlight-r"><pre>getNa <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>dfrm<span class="p">)</span> <span class="kp">lapply</span><span class="p">(</span>dfrm<span class="p">,</span> <span class="kr">function</span><span class="p">(</span>x<span class="p">)</span> <span class="kp">length</span><span class="p">(</span><span class="kp">which</span><span class="p">(</span><span class="kp">is.na</span><span class="p">(</span>x<span class="p">)</span> <span class="o">==</span><span class="s">"TRUE"</span><span class="p">)))</span>
+g <span class="o">&lt;-</span> getNa<span class="p">(</span>training<span class="p">)</span>
+<span class="c1"># g[g!=0]</span>
+<span class="c1"># length(g[g!=0])</span>
+g1 <span class="o">&lt;-</span> getNa<span class="p">(</span>test<span class="p">)</span>
+<span class="c1"># g1[g1!=0]</span>
+<span class="c1"># length(g1[g1!=0])</span>
+</pre></div>
+
+<p>There are <code>r length(g[g!=0])</code> variables with missing values in the training set. Exactly 19216 rows are missing values from all of these variables.
+There are <code>r length(g1[g1!=0])</code> variables with missing values in the test set. All 20 rows are missing values from all of these variables.</p>
+
+<h4>
+<a name="do-names-of-variables-missing-in-training-and-test-tally" class="anchor" href="#do-names-of-variables-missing-in-training-and-test-tally"><span class="octicon octicon-link"></span></a>Do names of variables missing in training and test tally?</h4>
+
+<div class="highlight highlight-r"><pre><span class="kp">table</span><span class="p">(</span><span class="kp">names</span><span class="p">(</span>g1<span class="p">[</span>g1<span class="o">!=</span><span class="m">0</span><span class="p">])</span> <span class="o">%in%</span> <span class="kp">names</span><span class="p">(</span>g<span class="p">[</span>g<span class="o">!=</span><span class="m">0</span><span class="p">]))</span>
+</pre></div>
+
+<p>Decided to remove all 100 variables from analyses. 67 variables are missing in all or
+majority of cases in both training and test. If there was more data in these, imputation would be attempted. Remaining 33 variables that are missing in test cannot be included since predictions cannot be made on test with these.</p>
+
+<h4>
+<a name="creating-new-training-set-by-removing-variables-with-missing-values" class="anchor" href="#creating-new-training-set-by-removing-variables-with-missing-values"><span class="octicon octicon-link"></span></a>Creating new training set by removing variables with missing values.</h4>
+
+<h4>
+<a name="removing-first-column-containing-row-numbers-and-last-with-outcome-classe" class="anchor" href="#removing-first-column-containing-row-numbers-and-last-with-outcome-classe"><span class="octicon octicon-link"></span></a>Removing first column containing row numbers and last with outcome, "classe".</h4>
+
+<h4>
+<a name="converting-user_name-and-cvtd_timestamp-to-numeric-factors" class="anchor" href="#converting-user_name-and-cvtd_timestamp-to-numeric-factors"><span class="octicon octicon-link"></span></a>Converting "user_name" and "cvtd_timestamp" to numeric factors</h4>
+
+<div class="highlight highlight-r"><pre>n <span class="o">&lt;-</span> <span class="kp">names</span><span class="p">(</span>g1<span class="p">[</span>g1<span class="o">!=</span><span class="m">0</span><span class="p">])</span>
+remnames <span class="o">&lt;-</span> <span class="kp">names</span><span class="p">(</span>training<span class="p">)[</span><span class="o">!</span><span class="p">(</span><span class="kp">names</span><span class="p">(</span>training<span class="p">)</span> <span class="o">%in%</span> n<span class="p">)]</span>
+newtrain <span class="o">&lt;-</span> training<span class="p">[,</span><span class="kp">intersect</span><span class="p">(</span><span class="kp">names</span><span class="p">(</span>training<span class="p">),</span>remnames<span class="p">)]</span>
+<span class="kp">dim</span><span class="p">(</span>newtrain<span class="p">)</span>
+newtrain <span class="o">&lt;-</span> newtrain<span class="p">[,</span><span class="o">-</span><span class="kt">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">60</span><span class="p">)]</span>
+fac <span class="o">&lt;-</span> newtrain<span class="p">[,</span><span class="kt">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">4</span><span class="p">)]</span>
+fac<span class="p">[,</span><span class="m">1</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="kp">as.numeric</span><span class="p">(</span>fac<span class="p">[,</span><span class="m">1</span><span class="p">])</span>
+fac<span class="p">[,</span><span class="m">2</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="kp">as.numeric</span><span class="p">(</span>fac<span class="p">[,</span><span class="m">2</span><span class="p">])</span>
+fac<span class="p">[,</span><span class="m">1</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="kp">as.factor</span><span class="p">(</span>fac<span class="p">[,</span><span class="m">1</span><span class="p">])</span>
+fac<span class="p">[,</span><span class="m">2</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="kp">as.factor</span><span class="p">(</span>fac<span class="p">[,</span><span class="m">2</span><span class="p">])</span>
+<span class="kp">summary</span><span class="p">(</span>fac<span class="p">)</span>
+newtrain <span class="o">&lt;-</span> newtrain<span class="p">[,</span><span class="o">-</span><span class="kt">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">4</span><span class="p">)]</span>
+newtrain <span class="o">&lt;-</span> <span class="kp">cbind</span><span class="p">(</span>fac<span class="p">,</span> newtrain<span class="p">)</span>
+<span class="kp">dim</span><span class="p">(</span>newtrain<span class="p">)</span>
+</pre></div>
+
+<p>The training and test data are from <code>r length(unique(newtrain[,2]))</code> people.</p>
+
+<h4>
+<a name="filtering-out-variables-with-near-zero-variance" class="anchor" href="#filtering-out-variables-with-near-zero-variance"><span class="octicon octicon-link"></span></a>Filtering out variables with near zero variance</h4>
+
+<div class="highlight highlight-r"><pre><span class="kn">library</span><span class="p">(</span>caret<span class="p">)</span>
+nzv <span class="o">&lt;-</span> nearZeroVar<span class="p">(</span>newtrain<span class="p">)</span>
+filtnewtrain <span class="o">&lt;-</span> newtrain<span class="p">[,</span><span class="o">-</span>nzv<span class="p">]</span>
+<span class="kp">dim</span><span class="p">(</span>filtnewtrain<span class="p">)</span>
+</pre></div>
+
+<p>The variable <code>r setdiff(names(newtrain), names(filtnewtrain))</code> is removed by the near zero variance filter of caret package.</p>
+
+<h4>
+<a name="converting-data-frame-to-numeric-matrix" class="anchor" href="#converting-data-frame-to-numeric-matrix"><span class="octicon octicon-link"></span></a>Converting data frame to numeric matrix</h4>
+
+<h4>
+<a name="applying-correlation-filter---remove-variables-with-correlation--090" class="anchor" href="#applying-correlation-filter---remove-variables-with-correlation--090"><span class="octicon octicon-link"></span></a>Applying correlation filter - remove variables with correlation &gt; 0.90</h4>
+
+<div class="highlight highlight-r"><pre>fil <span class="o">&lt;-</span> <span class="kp">sapply</span><span class="p">(</span>filtnewtrain<span class="p">,</span> <span class="kp">as.numeric</span><span class="p">)</span>
+corfil <span class="o">&lt;-</span> cor<span class="p">(</span>fil<span class="p">)</span>
+f <span class="o">&lt;-</span> findCorrelation<span class="p">(</span>corfil<span class="p">)</span>
+fil2 <span class="o">&lt;-</span> fil<span class="p">[,</span><span class="o">-</span>f<span class="p">]</span>
+vars_to_remove <span class="o">&lt;-</span> <span class="kp">setdiff</span><span class="p">(</span><span class="kp">colnames</span><span class="p">(</span>fil<span class="p">),</span> <span class="kp">colnames</span><span class="p">(</span>fil2<span class="p">))</span>
+</pre></div>
+
+<p>Variables "vars_to_remove" were removed due to high correlation.<br>
+No linear combinations were found using appropriate function in caret package.</p>
+
+<h4>
+<a name="subsetting-same-variables-in-test-data-and-making-new-test-set" class="anchor" href="#subsetting-same-variables-in-test-data-and-making-new-test-set"><span class="octicon octicon-link"></span></a>Subsetting same variables in test data and making new test set</h4>
+
+<div class="highlight highlight-r"><pre>filtest <span class="o">&lt;-</span> test<span class="p">[,</span><span class="kp">names</span><span class="p">(</span>test<span class="p">)</span><span class="o">%in%</span> <span class="kp">colnames</span><span class="p">(</span>fil2<span class="p">)]</span>
+<span class="kp">dim</span><span class="p">(</span>filtest<span class="p">)</span>
+filtest <span class="o">&lt;-</span> <span class="kp">sapply</span><span class="p">(</span>filtest<span class="p">,</span> <span class="kp">as.numeric</span><span class="p">)</span>
+</pre></div>
+
+<h4>
+<a name="centering-and-scaling-training-and-test-data-after-removing-user_name-variable" class="anchor" href="#centering-and-scaling-training-and-test-data-after-removing-user_name-variable"><span class="octicon octicon-link"></span></a>Centering and scaling training and test data after removing "user_name" variable</h4>
+
+<h4>
+<a name="adding-back-user_name-for-both-and-classe-for-training-data" class="anchor" href="#adding-back-user_name-for-both-and-classe-for-training-data"><span class="octicon octicon-link"></span></a>Adding back "user_name" for both and "classe" for training data</h4>
+
+<h4>
+<a name="converting-to-data-frame-user_name-classe-and-cvtd_timestamp-to-factors" class="anchor" href="#converting-to-data-frame-user_name-classe-and-cvtd_timestamp-to-factors"><span class="octicon octicon-link"></span></a>Converting to data frame; "user_name", "classe" and "cvtd_timestamp" to factors</h4>
+
+<div class="highlight highlight-r"><pre>preProcVal <span class="o">&lt;-</span> preProcess<span class="p">(</span>fil2<span class="p">[,</span><span class="m">-1</span><span class="p">],</span> method<span class="o">=</span><span class="kt">c</span><span class="p">(</span><span class="s">"center"</span><span class="p">,</span> <span class="s">"scale"</span><span class="p">))</span>
+trainF <span class="o">&lt;-</span> predict<span class="p">(</span>preProcVal<span class="p">,</span> fil2<span class="p">[,</span><span class="m">-1</span><span class="p">])</span>
+trainF <span class="o">&lt;-</span> <span class="kp">cbind</span><span class="p">(</span>fil2<span class="p">[,</span><span class="m">1</span><span class="p">],</span> trainF<span class="p">)</span>
+<span class="kp">colnames</span><span class="p">(</span>trainF<span class="p">)[</span><span class="m">1</span><span class="o">:</span><span class="m">2</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="s">"classe"</span><span class="p">,</span> <span class="s">"user_name"</span><span class="p">)</span>
+trainF <span class="o">&lt;-</span> <span class="kt">data.frame</span><span class="p">(</span>trainF<span class="p">)</span>
+trainF<span class="p">[,</span><span class="m">1</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="kp">as.factor</span><span class="p">(</span><span class="kp">as.character</span><span class="p">(</span>trainF<span class="p">[,</span><span class="m">1</span><span class="p">]))</span>
+trainF<span class="p">[,</span><span class="m">2</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="kp">as.factor</span><span class="p">(</span><span class="kp">as.character</span><span class="p">(</span>trainF<span class="p">[,</span><span class="m">2</span><span class="p">]))</span>
+date <span class="o">&lt;-</span> <span class="kp">strptime</span><span class="p">(</span>training<span class="o">$</span>cvtd_timestamp<span class="p">,</span> <span class="s">"%d/%m/%Y %H:%M"</span><span class="p">)</span>
+date <span class="o">&lt;-</span> <span class="kp">as.factor</span><span class="p">(</span><span class="kp">as.character</span><span class="p">(</span><span class="kp">date</span><span class="p">))</span>
+trainF<span class="p">[,</span><span class="m">3</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="kp">date</span>
+testF <span class="o">&lt;-</span> predict<span class="p">(</span>preProcVal<span class="p">,</span> filtest<span class="p">[,</span><span class="m">-1</span><span class="p">])</span>
+testF <span class="o">&lt;-</span> <span class="kp">cbind</span><span class="p">(</span>filtest<span class="p">[,</span><span class="m">1</span><span class="p">],</span> testF<span class="p">)</span>
+<span class="kp">colnames</span><span class="p">(</span>testF<span class="p">)[</span><span class="m">1</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="s">"user_name"</span>
+testF <span class="o">&lt;-</span> <span class="kt">data.frame</span><span class="p">(</span>testF<span class="p">)</span>
+testF<span class="p">[,</span><span class="m">1</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="kp">as.factor</span><span class="p">(</span><span class="kp">as.character</span><span class="p">(</span>testF<span class="p">[,</span><span class="m">1</span><span class="p">]))</span>
+date <span class="o">&lt;-</span> <span class="kp">strptime</span><span class="p">(</span>test<span class="o">$</span>cvtd_timestamp<span class="p">,</span> <span class="s">"%d/%m/%Y %H:%M"</span><span class="p">)</span>
+date <span class="o">&lt;-</span> <span class="kp">as.factor</span><span class="p">(</span><span class="kp">as.character</span><span class="p">(</span><span class="kp">date</span><span class="p">))</span>
+testF<span class="p">[,</span><span class="m">4</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="kp">date</span>
+</pre></div>
+
+<h2>
+<a name="exploratory-analysis" class="anchor" href="#exploratory-analysis"><span class="octicon octicon-link"></span></a>EXPLORATORY ANALYSIS</h2>
+
+<p>library(caret)</p>
+
+<h4>
+<a name="timestamp" class="anchor" href="#timestamp"><span class="octicon octicon-link"></span></a>Timestamp</h4>
+
+<div class="highlight highlight-r"><pre>featurePlot<span class="p">(</span> x <span class="o">=</span> trainF<span class="p">[,</span><span class="m">4</span><span class="o">:</span><span class="m">5</span><span class="p">],</span>
+             y <span class="o">=</span> trainF<span class="o">$</span>classe<span class="p">,</span>
+             plot <span class="o">=</span> <span class="s">"density"</span><span class="p">,</span>
+            auto.key <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>columns <span class="o">=</span> <span class="m">2</span><span class="p">))</span>
+</pre></div>
+
+<h4>
+<a name="variables-related-to-belt-and-arm" class="anchor" href="#variables-related-to-belt-and-arm"><span class="octicon octicon-link"></span></a>Variables related to belt and arm</h4>
+
+<div class="highlight highlight-r"><pre>featurePlot<span class="p">(</span> x <span class="o">=</span> trainF<span class="p">[,</span><span class="m">6</span><span class="o">:</span><span class="m">27</span><span class="p">],</span>
+             y <span class="o">=</span> trainF<span class="o">$</span>classe<span class="p">,</span>
+             plot <span class="o">=</span> <span class="s">"box"</span><span class="p">,</span>
+             auto.key <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>columns <span class="o">=</span> <span class="m">2</span><span class="p">))</span>
+</pre></div>
+
+<h4>
+<a name="variables-related-to-dumbell" class="anchor" href="#variables-related-to-dumbell"><span class="octicon octicon-link"></span></a>Variables related to dumbell</h4>
+
+<div class="highlight highlight-r"><pre>featurePlot<span class="p">(</span> x <span class="o">=</span> trainF<span class="p">[,</span><span class="kt">c</span><span class="p">(</span><span class="m">28</span><span class="o">:</span><span class="m">31</span><span class="p">,</span> <span class="m">34</span><span class="o">:</span><span class="m">39</span><span class="p">)],</span>
+             y <span class="o">=</span> trainF<span class="o">$</span>classe<span class="p">,</span>
+             plot <span class="o">=</span> <span class="s">"box"</span><span class="p">,</span>
+            auto.key <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>columns <span class="o">=</span> <span class="m">2</span><span class="p">))</span>
+</pre></div>
+
+<h4>
+<a name="variables-related-to-forearm" class="anchor" href="#variables-related-to-forearm"><span class="octicon octicon-link"></span></a>Variables related to forearm</h4>
+
+<div class="highlight highlight-r"><pre>featurePlot<span class="p">(</span> x <span class="o">=</span> trainF<span class="p">[,</span><span class="kt">c</span><span class="p">(</span><span class="m">40</span><span class="o">:</span><span class="m">43</span><span class="p">,</span><span class="m">46</span><span class="o">:</span><span class="m">50</span><span class="p">)],</span>
+             y <span class="o">=</span> trainF<span class="o">$</span>classe<span class="p">,</span>
+             plot <span class="o">=</span> <span class="s">"box"</span><span class="p">,</span>
+             auto.key <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>columns <span class="o">=</span> <span class="m">2</span><span class="p">))</span>
+</pre></div>
+
+<h4>
+<a name="outliers-in-gyros_forearm_x-and-gyros_forearm_y-gyros_dumbell_y-gyros_dumbell_z" class="anchor" href="#outliers-in-gyros_forearm_x-and-gyros_forearm_y-gyros_dumbell_y-gyros_dumbell_z"><span class="octicon octicon-link"></span></a>outliers in gyros_forearm_x and gyros_forearm_y, gyros_dumbell_y, gyros_dumbell_z</h4>
+
+<div class="highlight highlight-r"><pre>featurePlot<span class="p">(</span> x <span class="o">=</span> trainF<span class="p">[,</span><span class="kt">c</span><span class="p">(</span><span class="m">32</span><span class="p">,</span><span class="m">33</span><span class="p">,</span><span class="m">44</span><span class="p">,</span><span class="m">45</span><span class="p">)],</span>
+             y <span class="o">=</span> trainF<span class="o">$</span>classe<span class="p">,</span>
+             plot <span class="o">=</span> <span class="s">"box"</span><span class="p">,</span>
+             auto.key <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>columns <span class="o">=</span> <span class="m">2</span><span class="p">))</span>
+</pre></div>
+
+<p>Single points are pulling up scale on y-axis to 100. Need to impute these values to median.</p>
+
+<h4>
+<a name="pick-out-single-extreme-outliers-and-replace-by-median" class="anchor" href="#pick-out-single-extreme-outliers-and-replace-by-median"><span class="octicon octicon-link"></span></a>Pick out single extreme outliers and replace by median</h4>
+
+<div class="highlight highlight-r"><pre><span class="kp">summary</span><span class="p">(</span>trainF<span class="p">[,</span><span class="kt">c</span><span class="p">(</span><span class="m">32</span><span class="p">,</span><span class="m">33</span><span class="p">,</span><span class="m">44</span><span class="p">,</span><span class="m">45</span><span class="p">)])</span>
+w <span class="o">&lt;-</span> <span class="kp">which</span><span class="p">(</span>trainF<span class="o">$</span>gyros_dumbbell_y <span class="o">&gt;</span> <span class="m">80</span><span class="p">)</span>
+trainF<span class="o">$</span>gyros_dumbbell_y<span class="p">[</span>w<span class="p">]</span> <span class="o">&lt;-</span> median<span class="p">(</span>trainF<span class="o">$</span>gyros_dumbbell_y<span class="p">)</span>
+w2 <span class="o">&lt;-</span> <span class="kp">which</span><span class="p">(</span>trainF<span class="o">$</span>gyros_dumbbell_z <span class="o">&gt;</span> <span class="m">100</span><span class="p">)</span>
+trainF<span class="o">$</span>gyros_dumbbell_z<span class="p">[</span>w2<span class="p">]</span> <span class="o">&lt;-</span> median<span class="p">(</span>trainF<span class="o">$</span>gyros_dumbbell_z<span class="p">)</span>
+w3 <span class="o">&lt;-</span> <span class="kp">which</span><span class="p">(</span><span class="kp">abs</span><span class="p">(</span>trainF<span class="o">$</span>gyros_forearm_x<span class="p">)</span> <span class="o">&gt;</span> <span class="m">30</span><span class="p">)</span>
+trainF<span class="o">$</span>gyros_forearm_x<span class="p">[</span>w3<span class="p">]</span> <span class="o">&lt;-</span> median<span class="p">(</span>trainF<span class="o">$</span>gyros_forearm_x<span class="p">)</span>
+w4 <span class="o">&lt;-</span> <span class="kp">which</span><span class="p">(</span>trainF<span class="o">$</span>gyros_forearm_y <span class="o">&gt;</span> <span class="m">99</span><span class="p">)</span>
+trainF<span class="o">$</span>gyros_forearm_y<span class="p">[</span>w4<span class="p">]</span> <span class="o">&lt;-</span> median<span class="p">(</span>trainF<span class="o">$</span>gyros_forearm_y<span class="p">)</span>
+<span class="kp">summary</span><span class="p">(</span>trainF<span class="p">[,</span><span class="kt">c</span><span class="p">(</span><span class="m">32</span><span class="p">,</span><span class="m">33</span><span class="p">,</span><span class="m">44</span><span class="p">,</span><span class="m">45</span><span class="p">)])</span>
+</pre></div>
+
+<h4>
+<a name="replacing-numeric-with-original-classe" class="anchor" href="#replacing-numeric-with-original-classe"><span class="octicon octicon-link"></span></a>replacing numeric with original "classe"</h4>
+
+<div class="highlight highlight-r"><pre>trainF<span class="o">$</span>classe <span class="o">&lt;-</span> training<span class="o">$</span>classe
+</pre></div>
+
+<h2>
+<a name="building-the-model" class="anchor" href="#building-the-model"><span class="octicon octicon-link"></span></a>BUILDING THE MODEL</h2>
+
+<h4>
+<a name="splitting-original-training-set-into-subtraining-and-internal-test-set" class="anchor" href="#splitting-original-training-set-into-subtraining-and-internal-test-set"><span class="octicon octicon-link"></span></a>Splitting original training set into subtraining and internal test set</h4>
+
+<div class="highlight highlight-r"><pre><span class="kn">library</span><span class="p">(</span>caret<span class="p">)</span>
+<span class="kp">set.seed</span><span class="p">(</span><span class="m">1234</span><span class="p">)</span>
+ind <span class="o">&lt;-</span> createDataPartition<span class="p">(</span>trainF<span class="o">$</span>classe<span class="p">,</span> p<span class="o">=</span><span class="m">0.7</span><span class="p">,</span> <span class="kt">list</span><span class="o">=</span><span class="bp">F</span><span class="p">)</span>
+subtrain <span class="o">&lt;-</span> trainF<span class="p">[</span>ind<span class="p">,]</span>
+subtest <span class="o">&lt;-</span> trainF<span class="p">[</span><span class="o">-</span>ind<span class="p">,]</span>
+</pre></div>
+
+<p>Checked density distribution of time variables - structure not changed too much from original</p>
+
+<h4>
+<a name="building-the-model--random-forest-with-crossvalidation" class="anchor" href="#building-the-model--random-forest-with-crossvalidation"><span class="octicon octicon-link"></span></a>Building the model : Random Forest with crossvalidation</h4>
+
+<div class="highlight highlight-r"><pre><span class="kn">library</span><span class="p">(</span>doMC<span class="p">)</span>
+registerDoMC<span class="p">(</span>cores <span class="o">=</span> <span class="m">5</span><span class="p">)</span>
+fitControl <span class="o">&lt;-</span> trainControl<span class="p">(</span>method <span class="o">=</span> <span class="s">"repeatedcv"</span><span class="p">,</span> number <span class="o">=</span> <span class="m">10</span><span class="p">,</span> repeats <span class="o">=</span> <span class="m">10</span><span class="p">)</span>
+<span class="kp">set.seed</span><span class="p">(</span><span class="m">1234</span><span class="p">)</span>
+rfFit <span class="o">&lt;-</span> train<span class="p">(</span>classe<span class="o">~</span><span class="m">.</span><span class="p">,</span> data <span class="o">=</span> subtrain<span class="p">,</span> method <span class="o">=</span> <span class="s">"rf"</span><span class="p">,</span>
+trControl <span class="o">=</span> fitControl<span class="p">,</span> verbose<span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span>
+</pre></div>
+
+<h4>
+<a name="the-model-object" class="anchor" href="#the-model-object"><span class="octicon octicon-link"></span></a>The model object</h4>
+
+<pre><code>Random Forest 
+
+13737 samples
+   50 predictor
+    5 classes: 'A', 'B', 'C', 'D', 'E' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+
+Summary of sample sizes: 12365, 12363, 12364, 12364, 12362, 12362, ... 
+
+Resampling results across tuning parameters:
+
+  mtry  Accuracy  Kappa  Accuracy SD  Kappa SD
+   2    0.985     0.981  0.003542     0.004484
+  37    0.999     0.999  0.000771     0.000975
+  72    0.999     0.998  0.000877     0.001109
+</code></pre>
+
+<p>Accuracy was used to select the optimal model using  the largest value.
+The final value used for the model was mtry = 37. </p>
+
+<h4>
+<a name="predicting-on-held-out-test-set-belonging-to-original-training-data-" class="anchor" href="#predicting-on-held-out-test-set-belonging-to-original-training-data-"><span class="octicon octicon-link"></span></a>Predicting on held out test set belonging to original training data :</h4>
+
+<h4>
+<a name="in-sample-error" class="anchor" href="#in-sample-error"><span class="octicon octicon-link"></span></a>In sample error</h4>
+
+<div class="highlight highlight-r"><pre>predRF <span class="o">&lt;-</span> predict<span class="p">(</span>rfFit<span class="p">,</span> newdata <span class="o">=</span> subtest<span class="p">)</span>
+confusionMatrix<span class="p">(</span>predRF<span class="p">,</span> subtest<span class="o">$</span>classe<span class="p">)</span>
+</pre></div>
+
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction    A    B    C    D    E
+         A 1673    1    0    0    0
+         B    1 1138    1    0    0
+         C    0    0 1025    0    0
+         D    0    0    0  964    0
+         E    0    0    0    0 1082
+
+Overall Statistics
+
+               Accuracy : 0.9995          
+                 95% CI : (0.9985, 0.9999)
+    No Information Rate : 0.2845          
+    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+
+                  Kappa : 0.9994          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: A Class: B Class: C Class: D Class: E
+Sensitivity            0.9994   0.9991   0.9990   1.0000   1.0000
+Specificity            0.9998   0.9996   1.0000   1.0000   1.0000
+Pos Pred Value         0.9994   0.9982   1.0000   1.0000   1.0000
+Neg Pred Value         0.9998   0.9998   0.9998   1.0000   1.0000
+Prevalence             0.2845   0.1935   0.1743   0.1638   0.1839
+Detection Rate         0.2843   0.1934   0.1742   0.1638   0.1839
+Detection Prevalence   0.2845   0.1937   0.1742   0.1638   0.1839
+Balanced Accuracy      0.9996   0.9994   0.9995   1.0000   1.0000
+</code></pre>
+
+<p>The high accuracy values are indicative of overtraining. Random forest models themselves although powerful are prone to overfitting.  Out of sample prediction cannot be expected to be more accurate than 60-70%. </p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/sm30">sm30</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
