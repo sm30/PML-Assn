@@ -4,29 +4,40 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Pml-assn by sm30</title>
-
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
     <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
   </head>
   <body>
-    <div class="wrapper">
+
       <header>
         <h1>Pml-assn</h1>
         <p>Practical Machine Learning assn WriteUp</p>
-
-        <p class="view"><a href="https://github.com/sm30/PML-Assn">View the Project on GitHub <small>sm30/PML-Assn</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/sm30/PML-Assn/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/sm30/PML-Assn/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/sm30/PML-Assn">View On <strong>GitHub</strong></a></li>
-        </ul>
       </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/sm30/PML-Assn" class="button fork"><strong>View On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/sm30/PML-Assn/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/sm30/PML-Assn/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
       <section>
         <hr><p>title: "Practical Machine Learning-Data Science Specialization"
 author: "Coursera Student"
@@ -184,12 +195,11 @@ testF<span class="p">[,</span><span class="m">4</span><span class="p">]</span> <
 <h2>
 <a name="exploratory-analysis" class="anchor" href="#exploratory-analysis"><span class="octicon octicon-link"></span></a>EXPLORATORY ANALYSIS</h2>
 
-<p>library(caret)</p>
-
 <h4>
 <a name="timestamp" class="anchor" href="#timestamp"><span class="octicon octicon-link"></span></a>Timestamp</h4>
 
-<div class="highlight highlight-r"><pre>featurePlot<span class="p">(</span> x <span class="o">=</span> trainF<span class="p">[,</span><span class="m">4</span><span class="o">:</span><span class="m">5</span><span class="p">],</span>
+<div class="highlight highlight-r"><pre><span class="kn">library</span><span class="p">(</span>caret<span class="p">)</span>
+featurePlot<span class="p">(</span> x <span class="o">=</span> trainF<span class="p">[,</span><span class="m">4</span><span class="o">:</span><span class="m">5</span><span class="p">],</span>
              y <span class="o">=</span> trainF<span class="o">$</span>classe<span class="p">,</span>
              plot <span class="o">=</span> <span class="s">"density"</span><span class="p">,</span>
             auto.key <span class="o">=</span> <span class="kt">list</span><span class="p">(</span>columns <span class="o">=</span> <span class="m">2</span><span class="p">))</span>
@@ -351,11 +361,11 @@ Balanced Accuracy      0.9996   0.9994   0.9995   1.0000   1.0000
 <p>The high accuracy values are indicative of overtraining. Random forest models themselves although powerful are prone to overfitting.  Out of sample prediction cannot be expected to be more accurate than 60-70%. </p>
       </section>
       <footer>
-        <p>This project is maintained by <a href="https://github.com/sm30">sm30</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+        <p>Project maintained by <a href="https://github.com/sm30">sm30</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
       </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     
   </body>
 </html>
